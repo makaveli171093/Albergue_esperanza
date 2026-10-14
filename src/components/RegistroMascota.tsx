@@ -16,21 +16,55 @@ function RegistroMascota({ onRegistrar, onCerrar }: RegistroMascotaProps) {
   const [caracteristicas, setCaracteristicas] = useState("");
   const [esterilizado, setEsterilizado] = useState(false);
   const [imagen, setImagen] = useState("");
+  const [error, setError] = useState("");
 
   const registrar = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    setError("");
+
+    if (
+      !nombre.trim() ||
+      !raza.trim() ||
+      !peso.trim() ||
+      !edad.trim() ||
+      !caracteristicas.trim() ||
+      !imagen.trim()
+    ) {
+      setError("Completa todos los campos antes de registrar la mascota.");
+      return;
+    }
+
+    const pesoNumero = Number(peso);
+    const edadNumero = Number(edad);
+
+    if (!Number.isFinite(pesoNumero) || pesoNumero <= 0) {
+      setError("El peso debe ser un número mayor que cero.");
+      return;
+    }
+
+    if (
+      !Number.isFinite(edadNumero) ||
+      edadNumero < 0 ||
+      !Number.isInteger(edadNumero)
+    ) {
+      setError(
+        "La edad debe ser un número entero de meses, igual o mayor que cero.",
+      );
+      return;
+    }
 
     const nuevoCachorro: Cachorro = {
       id: Date.now(),
       nombre: nombre.trim(),
       raza: raza.trim(),
-      peso: Number(peso),
+      peso: pesoNumero,
       sexo,
-      edad: Number(edad),
+      edad: edadNumero,
       caracteristicas: caracteristicas.trim(),
       estadoAdopcion: "Disponible",
       esterilizado,
-      imagen: imagen.trim() || "/cachorros/default.jpg",
+      imagen: imagen.trim(),
     };
 
     onRegistrar(nuevoCachorro);
@@ -65,7 +99,15 @@ function RegistroMascota({ onRegistrar, onCerrar }: RegistroMascotaProps) {
         </button>
       </div>
 
-      <form onSubmit={registrar} className="space-y-4">
+      <form onSubmit={registrar} noValidate className="space-y-4">
+        {error && (
+          <p
+            role="alert"
+            className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700"
+          >
+            {error}
+          </p>
+        )}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <input
             required

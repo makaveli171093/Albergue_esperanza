@@ -27,6 +27,12 @@ function App() {
 
   const [busqueda, setBusqueda] = useState("");
   const [filtroAdopcion, setFiltroAdopcion] = useState("Todos");
+  const [filtroSexo, setFiltroSexo] = useState("Todos");
+  const [filtroRaza, setFiltroRaza] = useState("Todas");
+  const [filtroEsterilizado, setFiltroEsterilizado] = useState("Todos");
+  const [edadMaxima, setEdadMaxima] = useState("");
+
+  const razas = [...new Set(cachorros.map((cachorro) => cachorro.raza))];
 
   const cachorrosFiltrados = cachorros.filter((cachorro) => {
     const coincideBusqueda =
@@ -36,7 +42,26 @@ function App() {
     const coincideEstado =
       filtroAdopcion === "Todos" || cachorro.estadoAdopcion === filtroAdopcion;
 
-    return coincideBusqueda && coincideEstado;
+    const coincideSexo = filtroSexo === "Todos" || cachorro.sexo === filtroSexo;
+
+    const coincideRaza = filtroRaza === "Todas" || cachorro.raza === filtroRaza;
+
+    const coincideEsterilizado =
+      filtroEsterilizado === "Todos" ||
+      (filtroEsterilizado === "Si" && cachorro.esterilizado) ||
+      (filtroEsterilizado === "No" && !cachorro.esterilizado);
+
+    const coincideEdad =
+      edadMaxima === "" || cachorro.edad <= Number(edadMaxima);
+
+    return (
+      coincideBusqueda &&
+      coincideEstado &&
+      coincideSexo &&
+      coincideRaza &&
+      coincideEsterilizado &&
+      coincideEdad
+    );
   });
 
   return (
@@ -94,8 +119,64 @@ function App() {
             ))}
           </div>
 
+          <label className="flex flex-col gap-1 text-sm text-stone-600">
+            Sexo
+            <select
+              value={filtroSexo}
+              onChange={(e) => setFiltroSexo(e.target.value)}
+              className="px-4 py-2 rounded-xl border border-stone-200 bg-white"
+            >
+              <option value="Todos">Todos</option>
+              <option value="Macho">Macho</option>
+              <option value="Hembra">Hembra</option>
+            </select>
+          </label>
+
+          <label className="flex flex-col gap-1 text-sm text-stone-600">
+            Raza
+            <select
+              value={filtroRaza}
+              onChange={(e) => setFiltroRaza(e.target.value)}
+              className="px-4 py-2 rounded-xl border border-stone-200 bg-white"
+            >
+              <option value="Todas">Todas</option>
+
+              {razas.map((raza) => (
+                <option key={raza} value={raza}>
+                  {raza}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label className="flex flex-col gap-1 text-sm text-stone-600">
+            Esterilizado
+            <select
+              value={filtroEsterilizado}
+              onChange={(e) => setFiltroEsterilizado(e.target.value)}
+              className="px-4 py-2 rounded-xl border border-stone-200 bg-white"
+            >
+              <option value="Todos">Todos</option>
+              <option value="Si">Sí</option>
+              <option value="No">No</option>
+            </select>
+          </label>
+
+          <label className="flex flex-col gap-1 text-sm text-stone-600">
+            Edad máxima
+            <input
+              type="number"
+              min="0"
+              step="1"
+              value={edadMaxima}
+              onChange={(e) => setEdadMaxima(e.target.value)}
+              placeholder="Sin límite"
+              className="px-4 py-2 rounded-xl border border-stone-200 bg-white"
+            />
+          </label>
+
           <span className="text-sm text-slate-500">
-            {cachorros.length} resultados
+            {cachorrosFiltrados.length} resultados
           </span>
         </div>
 

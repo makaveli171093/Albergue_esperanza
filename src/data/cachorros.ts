@@ -11,6 +11,8 @@ export interface Cachorro {
   imagen: string;
 }
 
+export const RAZAS = ["Golden Retriever", "Beagle", "Mestizo", "Pinscher"];
+
 export const cachorrosIniciales: Cachorro[] = [
   {
     id: 1,

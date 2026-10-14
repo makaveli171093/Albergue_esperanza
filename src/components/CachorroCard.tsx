@@ -2,9 +2,19 @@ import type { Cachorro } from "../data/cachorros";
 
 interface CachorroCardProps {
   cachorro: Cachorro;
+  razas: string[];
+  onCambiarRaza: (nuevaRaza: string) => void;
+  onEliminar: () => void;
+  onEditar: () => void;
 }
 
-function CachorroCard({ cachorro }: CachorroCardProps) {
+function CachorroCard({
+  cachorro,
+  razas,
+  onCambiarRaza,
+  onEliminar,
+  onEditar,
+}: CachorroCardProps) {
   const caracteristicas = cachorro.caracteristicas
     .split(",")
     .map((item) => item.trim())
@@ -59,6 +69,21 @@ function CachorroCard({ cachorro }: CachorroCardProps) {
           </div>
         </div>
 
+        <label className="flex flex-col gap-1 text-sm text-stone-600">
+          Raza
+          <select
+            value={cachorro.raza}
+            onChange={(e) => onCambiarRaza(e.target.value)}
+            className="rounded-xl border border-stone-200 bg-white px-3 py-2"
+          >
+            {razas.map((raza) => (
+              <option key={raza} value={raza}>
+                {raza}
+              </option>
+            ))}
+          </select>
+        </label>
+
         {/* Características */}
         <div className="flex flex-wrap gap-2">
           {caracteristicas.map((caracteristica, index) => (
@@ -87,6 +112,22 @@ function CachorroCard({ cachorro }: CachorroCardProps) {
               : "◷ Pendiente esterilización"}
           </span>
         </div>
+
+        <button
+          type="button"
+          onClick={onEditar}
+          className="rounded-xl bg-surface-container px-4 py-2 text-sm font-semibold text-primary hover:bg-stone-200 transition"
+        >
+          Editar mascota
+        </button>
+
+        <button
+          type="button"
+          onClick={onEliminar}
+          className="rounded-xl bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-100 transition"
+        >
+          Eliminar mascota
+        </button>
 
         {/* Información final */}
         <p className="text-center text-xs text-stone-400">

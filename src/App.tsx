@@ -2,7 +2,7 @@ import { useState } from "react";
 import Header from "./components/Header";
 import CachorroCard from "./components/CachorroCard";
 import RegistroMascota from "./components/RegistroMascota";
-import { cachorrosIniciales } from "./data/cachorros";
+import { cachorrosIniciales, RAZAS } from "./data/cachorros";
 import type { Cachorro } from "./data/cachorros";
 import Estadisticas from "./components/Estadisticas";
 
@@ -11,10 +11,21 @@ function App() {
 
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
 
-  const registrarMascota = (nuevaMascota: Cachorro) => {
-    setCachorros((anteriores) => [...anteriores, nuevaMascota]);
+  const registrarMascota = (mascota: Cachorro) => {
+    setCachorros((anteriores) =>
+      mascotaEditando
+        ? anteriores.map((cachorro) =>
+            cachorro.id === mascota.id ? mascota : cachorro,
+          )
+        : [...anteriores, mascota],
+    );
 
     setMostrarFormulario(false);
+    setMascotaEditando(null);
+  };
+  const cerrarFormulario = () => {
+    setMostrarFormulario(false);
+    setMascotaEditando(null);
   };
 
   const disponibles = cachorros.filter(
@@ -31,8 +42,18 @@ function App() {
   const [filtroRaza, setFiltroRaza] = useState("Todas");
   const [filtroEsterilizado, setFiltroEsterilizado] = useState("Todos");
   const [edadMaxima, setEdadMaxima] = useState("");
+  const [mascotaEditando, setMascotaEditando] = useState<Cachorro | null>(null);
+  const razas = [
+    ...new Set([...RAZAS, ...cachorros.map((cachorro) => cachorro.raza)]),
+  ];
 
-  const razas = [...new Set(cachorros.map((cachorro) => cachorro.raza))];
+  const cambiarRaza = (id: number, nuevaRaza: string) => {
+    setCachorros((anteriores) =>
+      anteriores.map((cachorro) =>
+        cachorro.id === id ? { ...cachorro, raza: nuevaRaza } : cachorro,
+      ),
+    );
+  };
 
   const cachorrosFiltrados = cachorros.filter((cachorro) => {
     const coincideBusqueda =
@@ -64,18 +85,34 @@ function App() {
     );
   });
 
+  const eliminarMascota = (id: number) => {
+    setCachorros((anteriores) =>
+      anteriores.filter((cachorro) => cachorro.id !== id),
+    );
+  };
+
+  const iniciarEdicion = (mascota: Cachorro) => {
+    setMascotaEditando(mascota);
+    setMostrarFormulario(true);
+  };
+
   return (
     <div className="min-h-screen bg-slate-50">
       <Header
         total={cachorros.length}
-        onAgregar={() => setMostrarFormulario((anterior) => !anterior)}
+        onAgregar={() => {
+          setMascotaEditando(null);
+          setMostrarFormulario(true);
+        }}
       />
 
       <main className="max-w-6xl mx-auto px-6 py-10">
         {mostrarFormulario && (
           <RegistroMascota
+            key={mascotaEditando?.id ?? "nueva"}
+            mascotaInicial={mascotaEditando}
             onRegistrar={registrarMascota}
-            onCerrar={() => setMostrarFormulario(false)}
+            onCerrar={cerrarFormulario}
           />
         )}
         <Estadisticas
@@ -182,7 +219,14 @@ function App() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {cachorrosFiltrados.map((cachorro) => (
-            <CachorroCard key={cachorro.id} cachorro={cachorro} />
+            <CachorroCard
+              key={cachorro.id}
+              cachorro={cachorro}
+              razas={razas}
+              onCambiarRaza={(nuevaRaza) => cambiarRaza(cachorro.id, nuevaRaza)}
+              onEliminar={() => eliminarMascota(cachorro.id)}
+              onEditar={() => iniciarEdicion(cachorro)}
+            />
           ))}
         </div>
 

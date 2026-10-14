@@ -5,17 +5,32 @@ import type { Cachorro } from "../data/cachorros";
 interface RegistroMascotaProps {
   onRegistrar: (mascota: Cachorro) => void;
   onCerrar: () => void;
+  mascotaInicial: Cachorro | null;
 }
 
-function RegistroMascota({ onRegistrar, onCerrar }: RegistroMascotaProps) {
-  const [nombre, setNombre] = useState("");
-  const [raza, setRaza] = useState("");
-  const [peso, setPeso] = useState("");
-  const [sexo, setSexo] = useState<"Macho" | "Hembra">("Macho");
-  const [edad, setEdad] = useState("");
-  const [caracteristicas, setCaracteristicas] = useState("");
-  const [esterilizado, setEsterilizado] = useState(false);
-  const [imagen, setImagen] = useState("");
+function RegistroMascota({
+  mascotaInicial,
+  onRegistrar,
+  onCerrar,
+}: RegistroMascotaProps) {
+  const [nombre, setNombre] = useState(mascotaInicial?.nombre ?? "");
+  const [raza, setRaza] = useState(mascotaInicial?.raza ?? "");
+  const [peso, setPeso] = useState(
+    mascotaInicial ? String(mascotaInicial.peso) : "",
+  );
+  const [sexo, setSexo] = useState<"Macho" | "Hembra">(
+    mascotaInicial?.sexo ?? "Macho",
+  );
+  const [edad, setEdad] = useState(
+    mascotaInicial ? String(mascotaInicial.edad) : "",
+  );
+  const [caracteristicas, setCaracteristicas] = useState(
+    mascotaInicial?.caracteristicas ?? "",
+  );
+  const [esterilizado, setEsterilizado] = useState(
+    mascotaInicial?.esterilizado ?? false,
+  );
+  const [imagen, setImagen] = useState(mascotaInicial?.imagen ?? "");
   const [error, setError] = useState("");
 
   const registrar = (e: FormEvent<HTMLFormElement>) => {
@@ -55,19 +70,28 @@ function RegistroMascota({ onRegistrar, onCerrar }: RegistroMascotaProps) {
     }
 
     const nuevoCachorro: Cachorro = {
-      id: Date.now(),
+      id: mascotaInicial?.id ?? Date.now(),
       nombre: nombre.trim(),
       raza: raza.trim(),
       peso: pesoNumero,
       sexo,
       edad: edadNumero,
       caracteristicas: caracteristicas.trim(),
-      estadoAdopcion: "Disponible",
+      estadoAdopcion: mascotaInicial?.estadoAdopcion ?? "Disponible",
       esterilizado,
       imagen: imagen.trim(),
     };
 
     onRegistrar(nuevoCachorro);
+    setNombre("");
+    setRaza("");
+    setPeso("");
+    setSexo("Macho");
+    setEdad("");
+    setCaracteristicas("");
+    setEsterilizado(false);
+    setImagen("");
+    setError("");
   };
 
   const inputStyle =
@@ -82,7 +106,9 @@ function RegistroMascota({ onRegistrar, onCerrar }: RegistroMascotaProps) {
           </span>
 
           <h2 className="text-2xl font-bold text-primary mt-2">
-            Registrar una nueva mascota
+            {mascotaInicial
+              ? `Editar a ${mascotaInicial.nombre}`
+              : "Registrar una nueva mascota"}
           </h2>
 
           <p className="text-stone-500 text-sm mt-2">
@@ -189,7 +215,7 @@ function RegistroMascota({ onRegistrar, onCerrar }: RegistroMascotaProps) {
             type="submit"
             className="bg-primary text-white rounded-xl px-6 py-3 font-semibold hover:bg-primary-container transition"
           >
-            🐾 Guardar mascota
+            {mascotaInicial ? "Guardar cambios" : "🐾 Guardar mascota"}
           </button>
 
           <button
